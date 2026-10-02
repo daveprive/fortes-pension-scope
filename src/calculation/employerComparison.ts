@@ -197,6 +197,8 @@ export function compareEmployerScenarios(
   return {
     current: currentValue,
     proposed: proposedValue,
+    currentRetirementCapital: currentProjection.endCapital,
+    proposedRetirementCapital: proposedProjection.endCapital,
     annualEmploymentValueDifference:
       proposedValue.annualEmploymentValue - currentValue.annualEmploymentValue,
     annualEmployerPensionDifference:

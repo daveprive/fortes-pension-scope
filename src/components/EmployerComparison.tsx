@@ -20,6 +20,7 @@ import {
 import type { EmployerScenario, SchemeType } from "../calculation/types";
 import { currency } from "../formatting";
 import { downloadEmployerComparisonExcel } from "../export/excel";
+import { CalculationInfo } from "./CalculationInfo";
 
 const formatNumber = (value: number) =>
   new Intl.NumberFormat("nl-NL", {
@@ -253,6 +254,22 @@ function OfferCard({
         <Box sx={{ mt: 2, pt: 2, borderTop: "1px solid", borderColor: "divider" }}>
           <Typography variant="body2">
             Bruto arbeidsvoorwaardenwaarde: <b>{currency(value.annualEmploymentValue)}</b>
+            <CalculationInfo title="Uitleg bruto arbeidsvoorwaardenwaarde">
+              <Typography>
+                We tellen het bruto jaarsalaris, vakantiegeld, een eventuele
+                13e maand, extra vaste beloning, overige
+                werkgeversbijdragen en de werkgeverspensioenpremie bij elkaar op.
+              </Typography>
+              <Typography>
+                In dit scenario is de werkgeverspensioenpremie{" "}
+                <b>{currency(value.annualEmployerPension)} per jaar</b>.
+              </Typography>
+              <Typography>
+                De werknemersbijdrage van{" "}
+                <b>{currency(value.annualEmployeePension)} per jaar</b> blijft
+                apart: dit is geen onderdeel van de werkgeverswaarde.
+              </Typography>
+            </CalculationInfo>
           </Typography>
           <Typography variant="caption" color="text.secondary">
             Inclusief werkgeverspensioen en overige werkgeversbijdragen; werknemersbijdrage staat afzonderlijk in het overzicht.
@@ -299,9 +316,32 @@ export function EmployerComparison({
           <Typography variant="overline" color="primary">
             Pensioenkapitaal-omslagpunt
           </Typography>
-          <Typography variant="h5" gutterBottom>
-            Welk salaris geeft hetzelfde pensioenkapitaal op pensioendatum?
-          </Typography>
+          <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
+            <Typography variant="h5">
+              Welk salaris geeft hetzelfde pensioenkapitaal op pensioendatum?
+            </Typography>
+            <CalculationInfo title="Uitleg salaris voor gelijk pensioenkapitaal">
+              <Typography>
+                De calculator rekent eerst het pensioenkapitaal van de huidige
+                leeftijdsstaffel door tot de pensioendatum.
+              </Typography>
+              <Typography>
+                Daarna test hij bruto maandsalarissen bij de nieuwe werkgever,
+                met het ingevulde vlakke premiepercentage, totdat het
+                geprojecteerde eindkapitaal gelijk is.
+              </Typography>
+              <Typography>
+                Huidige projectie: <b>{currency(comparison.currentRetirementCapital)}</b>.
+                Projectie nieuwe werkgever bij het ingevoerde salaris:{" "}
+                <b>{currency(comparison.proposedRetirementCapital)}</b>.
+              </Typography>
+              <Typography>
+                Het rendementsscenario is{" "}
+                <b>{returnPercentage.toLocaleString("nl-NL")} % per jaar</b>.
+                De pensioengevende salarisgrens blijft gelden.
+              </Typography>
+            </CalculationInfo>
+          </Stack>
           {capitalBreakEven === undefined ? (
             <Stack spacing={2}>
               <Alert severity="warning">
@@ -311,9 +351,28 @@ export function EmployerComparison({
               </Alert>
               {alternativeAtCap && (
                 <Box sx={{ p: 2.5, borderRadius: 2, bgcolor: "action.hover" }}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Alternatief: salaris tot de pensioengrens plus eigen inleg
-                  </Typography>
+                  <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
+                    <Typography variant="subtitle1">
+                      Alternatief: salaris tot de pensioengrens plus eigen inleg
+                    </Typography>
+                    <CalculationInfo title="Uitleg aanvullende eigen pensioeninleg">
+                      <Typography>
+                        Eerst zoeken we het bruto salaris waarbij het
+                        pensioengevende salarismaximum van de nieuwe regeling
+                        wordt bereikt.
+                      </Typography>
+                      <Typography>
+                        Daarna rekenen we het resterende verschil in
+                        pensioenkapitaal terug naar een vaste maandelijkse
+                        extra storting tot pensioendatum.
+                      </Typography>
+                      <Typography>
+                        De uitkomst is <b>{currency(comparison.requiredExtraMonthlyPensionContribution!)} per maand</b>.
+                        Deze storting wordt in de berekening na het maandrendement
+                        ingelegd en rendeert vanaf de volgende maand.
+                      </Typography>
+                    </CalculationInfo>
+                  </Stack>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12, md: 4 }}>
                       <Typography variant="caption" color="text.secondary">
@@ -440,7 +499,34 @@ export function EmployerComparison({
               ].map(([label, value]) => (
                 <Grid key={String(label)} size={{ xs: 12, sm: 6, lg: 4 }}>
                   <Box sx={{ p: 2, bgcolor: "action.hover", borderRadius: 2 }}>
-                    <Typography variant="caption" color="text.secondary">{label}</Typography>
+                    <Stack direction="row" alignItems="center" spacing={0.25}>
+                      <Typography variant="caption" color="text.secondary">{label}</Typography>
+                      <CalculationInfo title={`Uitleg: ${label}`}>
+                        <Typography>
+                          We berekenen dit bedrag afzonderlijk voor de huidige
+                          werkgever en de nieuwe werkgever. Daarna trekken we
+                          de huidige uitkomst af van de nieuwe uitkomst.
+                        </Typography>
+                        <Typography>
+                          Een minteken betekent dus dat de nieuwe werkgever in
+                          dit scenario lager uitkomt; een plusteken betekent
+                          hoger.
+                        </Typography>
+                        {label === "Verschil pensioenkapitaal op pensioendatum" && (
+                          <Typography>
+                            Huidige regeling:{" "}
+                            <b>{currency(comparison.currentRetirementCapital)}</b>.
+                            Nieuwe regeling:{" "}
+                            <b>{currency(comparison.proposedRetirementCapital)}</b>.
+                          </Typography>
+                        )}
+                        <Typography>
+                          De berekening gebruikt dezelfde geboortedatum,
+                          pensioendatum en het rendementsscenario voor beide
+                          werkgevers.
+                        </Typography>
+                      </CalculationInfo>
+                    </Stack>
                     <Typography variant="h6">{differenceText(Number(value))}</Typography>
                     <Typography variant="caption">Nieuwe werkgever t.o.v. huidige werkgever</Typography>
                   </Box>

@@ -151,6 +151,8 @@ export interface EmploymentValue {
 export interface EmployerComparisonResult {
   current: EmploymentValue;
   proposed: EmploymentValue;
+  currentRetirementCapital: number;
+  proposedRetirementCapital: number;
   annualEmploymentValueDifference: number;
   annualEmployerPensionDifference: number;
   annualEmployeePensionDifference: number;
