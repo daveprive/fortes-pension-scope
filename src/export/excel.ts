@@ -1,5 +1,5 @@
 import writeXlsxFile, { type Cell, type Sheet } from 'write-excel-file/browser';
-import type { CalculationInput, ProjectionResult, ReturnScenario } from '../calculation/types';
+import type { CalculationInput, EmployerComparisonResult, EmployerScenario, ProjectionResult, ReturnScenario } from '../calculation/types';
 
 type ExportRow = Record<string, string | number>;
 
@@ -17,4 +17,40 @@ export async function downloadExcel(input: CalculationInput, results: { scenario
   const sheets = [sheet('Samenvatting', summary), sheet('Invoer', [{ Geboortedatum: input.birthDate, Peildatum: input.calculationDate, Pensioenleeftijd: input.retirementAge, 'Bruto maandsalaris': input.salary.grossMonthlySalary, 'Deeltijd %': input.salary.partTimePercentage / 100, Franchise: input.franchise.current, 'Bestaand kapitaal': input.existingCapital }]), sheet('Staffel', input.currentScheme.progressiveTiers.map((tier) => ({ 'Leeftijd vanaf': tier.fromAge, 'Leeftijd tot': tier.toAge, 'Premie %': tier.percentage / 100 }))), sheet('Jaaroverzicht', annual), sheet('Maandberekening', monthly)];
   const file = await writeXlsxFile(sheets);
   await file.toFile('pensioen-berekening.xlsx');
+}
+
+export async function downloadEmployerComparisonExcel(
+  current: EmployerScenario,
+  proposed: EmployerScenario,
+  comparison: EmployerComparisonResult,
+  returnPercentage: number,
+): Promise<void> {
+  const offer = (scenario: EmployerScenario) => ({
+    Scenario: scenario.name,
+    'Bruto maandsalaris': scenario.input.salary.grossMonthlySalary,
+    'Salarisbetalingen p/j': scenario.input.salary.paymentsPerYear,
+    'Vakantiegeld %': scenario.input.salary.holidayAllowancePercentage / 100,
+    Franchise: scenario.input.franchise.current,
+    'Pensioenregeling': scenario.input.currentScheme.type,
+    'Overige werkgeversbijdragen p/j': scenario.annualEmployerBenefits,
+  });
+  const values = [
+    ['Bruto arbeidsvoorwaarden p/j', comparison.annualEmploymentValueDifference],
+    ['Werkgeverspensioen p/j', comparison.annualEmployerPensionDifference],
+    ['Werknemersbijdrage p/j', comparison.annualEmployeePensionDifference],
+    ['Werkgeverspensioen tot pensioen', comparison.careerEmployerPensionDifference],
+    ['Werknemersbijdrage tot pensioen', comparison.careerEmployeePensionDifference],
+    ['Pensioenkapitaal op pensioendatum', comparison.retirementCapitalDifference],
+    ['Omslagpunt salaris voor gelijke arbeidsvoorwaarden', comparison.breakEvenGrossMonthlySalary ?? 'Geen oplossing'],
+    ['Omslagpunt salaris voor gelijk eindkapitaal', comparison.breakEvenGrossMonthlySalaryForRetirementCapital ?? 'Geen oplossing'],
+    ['Salaris bij pensioengevend maximum', comparison.grossMonthlySalaryAtPensionableCap ?? 'Niet gevonden'],
+    ['Resterend kapitaalverschil bij maximum', comparison.retirementCapitalGapAtSalaryCap ?? 'Niet van toepassing'],
+    ['Benodigde aanvullende eigen pensioeninleg p/m', comparison.requiredExtraMonthlyPensionContribution ?? 'Niet van toepassing'],
+  ].map(([Onderdeel, Verschil]) => ({ Onderdeel, Verschil: typeof Verschil === 'number' ? Verschil : String(Verschil), 'Referentierendement %': returnPercentage / 100 }));
+  const file = await writeXlsxFile([
+    sheet('Werkgeversvergelijking', values),
+    sheet('Huidige werkgever', [offer(current)]),
+    sheet('Nieuwe werkgever', [offer(proposed)]),
+  ]);
+  await file.toFile('werkgeversvergelijking.xlsx');
 }

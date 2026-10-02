@@ -3,6 +3,7 @@ import {
   Add,
   Brightness4,
   Brightness7,
+  ContentCopyOutlined,
   DeleteOutline,
   FileDownloadOutlined,
   RestartAlt,
@@ -49,6 +50,7 @@ import {
 } from "./calculation/calculator";
 import type {
   CalculationInput,
+  EmployerScenario,
   FlatPremiumScenario,
   ReturnScenario,
 } from "./calculation/types";
@@ -56,6 +58,7 @@ import { currency, percentage } from "./formatting";
 import { configurationJson, parseConfiguration } from "./export/configuration";
 import { downloadExcel } from "./export/excel";
 import { FlatComparison } from "./components/FlatComparison";
+import { EmployerComparison } from "./components/EmployerComparison";
 
 const dutchNumber = (value: number) =>
   new Intl.NumberFormat("nl-NL", {
@@ -117,6 +120,24 @@ export default function App({
   const [flatScenarios, setFlatScenarios] = useState<FlatPremiumScenario[]>(
     defaultFlatPremiumScenarios,
   );
+  const [employerScenarios, setEmployerScenarios] = useState<{
+    current: EmployerScenario;
+    proposed: EmployerScenario;
+  }>({
+    current: {
+      id: "current",
+      name: "Huidige werkgever",
+      input: structuredClone(defaultInput),
+      annualEmployerBenefits: 0,
+    },
+    proposed: {
+      id: "new",
+      name: "Nieuwe werkgever",
+      input: structuredClone(defaultInput),
+      annualEmployerBenefits: 0,
+    },
+  });
+  const [comparisonInitialized, setComparisonInitialized] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [calculatedInput, setCalculatedInput] =
     useState<CalculationInput>(defaultInput);
@@ -229,7 +250,7 @@ export default function App({
     }
   };
   const downloadConfiguration = () => {
-    const blob = new Blob([configurationJson(input, returns)], {
+    const blob = new Blob([configurationJson(input, returns, employerScenarios)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
@@ -244,6 +265,7 @@ export default function App({
       const parsed = parseConfiguration(JSON.parse(await file.text()));
       setInput(parsed.input);
       setReturns(parsed.returns);
+      if (parsed.employerScenarios) setEmployerScenarios(parsed.employerScenarios);
       setImportError(undefined);
     } catch {
       setImportError(
@@ -309,6 +331,7 @@ export default function App({
             "Nationale Nederlanden",
             "Berekenen",
             "Resultaten & export",
+            "Werkgeversvergelijking",
           ].map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -332,8 +355,40 @@ export default function App({
             3. Berekenen
           </Button>
           <Button onClick={() => setActiveStep(3)}>4. Resultaten</Button>
+          <Button
+            onClick={() => {
+              if (!comparisonInitialized) {
+                const comparisonInput = structuredClone(input);
+                setEmployerScenarios({
+                  current: {
+                    id: "current",
+                    name: "Huidige werkgever",
+                    input: comparisonInput,
+                    annualEmployerBenefits: 0,
+                  },
+                  proposed: {
+                    id: "new",
+                    name: "Nieuwe werkgever",
+                    input: {
+                      ...structuredClone(input),
+                      currentScheme: {
+                        ...structuredClone(input.currentScheme),
+                        type: "flat",
+                        flatPremiumPercentage: 20,
+                      },
+                    },
+                    annualEmployerBenefits: 0,
+                  },
+                });
+                setComparisonInitialized(true);
+              }
+              setActiveStep(4);
+            }}
+          >
+            5. Werkgeversvergelijking
+          </Button>
         </Stack>
-        {activeStep < 3 && (
+        {activeStep < 4 && (
           <Stack
             direction="row"
             spacing={1}
@@ -884,7 +939,7 @@ export default function App({
           </Grid>
           <Grid
             size={{ xs: 12, lg: 12 }}
-            sx={{ display: activeStep >= 2 ? "block" : "none" }}
+            sx={{ display: activeStep >= 2 && activeStep < 4 ? "block" : "none" }}
           >
             <Stack
               spacing={activeStep >= 2 ? 0 : 3}
@@ -1243,6 +1298,54 @@ export default function App({
             </Stack>
           </Grid>
         </Grid>
+        {activeStep === 4 && (
+          <Box sx={{ mt: 1 }}>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              justifyContent="space-between"
+              alignItems={{ sm: "center" }}
+              spacing={1}
+              sx={{ mb: 2 }}
+            >
+              <Box>
+                <Typography variant="h5">Werkgeversvergelijking</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Vergelijk twee arbeidsvoorwaardenscenarioâ€™s met dezelfde
+                  rekenmethodiek als de pensioenberekening.
+                </Typography>
+              </Box>
+              <Button
+                startIcon={<ContentCopyOutlined />}
+                onClick={() =>
+                  setEmployerScenarios((scenarios) => ({
+                    ...scenarios,
+                    current: {
+                      ...scenarios.current,
+                      input: structuredClone(calculatedInput),
+                    },
+                  }))
+                }
+              >
+                Vernieuw vanuit calculator
+              </Button>
+            </Stack>
+            <EmployerComparison
+              current={employerScenarios.current}
+              proposed={employerScenarios.proposed}
+              returnPercentage={
+                firstResult?.scenario.annualPercentage ??
+                calculatedReturns[0]?.annualPercentage ??
+                0
+              }
+              onCurrentChange={(current) =>
+                setEmployerScenarios((scenarios) => ({ ...scenarios, current }))
+              }
+              onProposedChange={(proposed) =>
+                setEmployerScenarios((scenarios) => ({ ...scenarios, proposed }))
+              }
+            />
+          </Box>
+        )}
       </Container>
     </>
   );

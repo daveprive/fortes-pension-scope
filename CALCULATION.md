@@ -38,3 +38,28 @@ waarbij het eindkapitaal van de vlakke regeling gelijk is aan de huidige
 regeling wordt geretourneerd. Bestaat er geen oplossing binnen dat bereik, dan
 wordt dit expliciet gemeld. Een nominaal equivalent is de gemiddelde
 premielast; die kan afwijken omdat vroegere inleg langer rendeert.
+
+## Werkgeversvergelijking
+
+De vergelijking gebruikt per werkgever dezelfde maandprojectie als de
+calculator. De jaarlijkse bruto arbeidsvoorwaardenwaarde is het bruto
+jaarsalaris, vakantiegeld, eventuele 13e maand, extra vaste beloning, overige
+werkgeversbijdragen en de jaarlijkse werkgeverspensioenpremie. De
+werknemersbijdrage blijft bewust afzonderlijk zichtbaar.
+
+Het kapitaal-omslagpunt wordt via binary search bepaald: het bruto
+maandsalaris bij de nieuwe werkgever waarbij het geprojecteerde pensioenkapitaal
+op pensioendatum gelijk wordt aan dat bij de huidige werkgever. Het zoekbereik
+is € 0 tot € 100.000 per maand. Het pensioengevende salarismaximum blijft in
+deze berekening van toepassing; daardoor kan er boven de grens geen oplossing
+bestaan. Pensioenverschillen tot pensioendatum gebruiken hetzelfde gekozen
+rendement voor beide scenario's. Dit zijn scenario-uitkomsten en geen
+financieel, fiscaal, juridisch of pensioenadvies.
+
+Als het salarismaximum een kapitaal-omslagpunt verhindert, berekent de
+vergelijking ook een alternatief: het salaris waarbij de maximale
+pensioengrondslag wordt benut, gevolgd door de maandelijkse aanvullende eigen
+pensioeninleg die het resterende eindkapitaalverschil zou dichten. De inleg
+wordt als een vaste maandelijkse storting gemodelleerd en rendeert vanaf de
+volgende maand. Of vrijwillige inleg in een concrete regeling mogelijk en
+fiscaal passend is, valt buiten deze calculator.

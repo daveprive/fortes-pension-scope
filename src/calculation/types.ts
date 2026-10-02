@@ -129,3 +129,44 @@ export interface ProjectionResult {
   endCapital: number;
   realEndCapital?: number;
 }
+
+/** A self-contained employer offer, used only in the local comparison screen. */
+export interface EmployerScenario {
+  id: "current" | "new";
+  name: string;
+  input: CalculationInput;
+  /** Annual, employer-paid benefits that are not part of salary or pension. */
+  annualEmployerBenefits: number;
+}
+
+export interface EmploymentValue {
+  annualSalary: number;
+  annualEmployerPension: number;
+  annualEmployeePension: number;
+  annualEmployerBenefits: number;
+  annualEmploymentValue: number;
+  indicativeAmountAfterEmployeePension: number;
+}
+
+export interface EmployerComparisonResult {
+  current: EmploymentValue;
+  proposed: EmploymentValue;
+  currentRetirementCapital: number;
+  proposedRetirementCapital: number;
+  annualEmploymentValueDifference: number;
+  annualEmployerPensionDifference: number;
+  annualEmployeePensionDifference: number;
+  careerEmployerPensionDifference: number;
+  careerEmployeePensionDifference: number;
+  retirementCapitalDifference: number;
+  /** Salary that equalizes annual gross employment value. */
+  breakEvenGrossMonthlySalary: number | undefined;
+  /** Salary that equalizes projected pension capital on the retirement date. */
+  breakEvenGrossMonthlySalaryForRetirementCapital: number | undefined;
+  /** Gross monthly salary at which the proposed pensionable salary cap is used. */
+  grossMonthlySalaryAtPensionableCap: number | undefined;
+  /** Remaining projected capital gap when the proposed salary cap is used. */
+  retirementCapitalGapAtSalaryCap: number | undefined;
+  /** Monthly voluntary pension contribution required to close that remaining gap. */
+  requiredExtraMonthlyPensionContribution: number | undefined;
+}

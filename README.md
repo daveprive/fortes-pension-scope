@@ -19,6 +19,9 @@ een JSON-configuratie exporteren en later importeren.
 - Maandelijkse projectie met effectief maandrendement, kosten en inflatie.
 - Meerdere rendementsscenario's en equivalent vlak premiepercentage.
 - Kapitaalgrafiek, jaaraggregatie in de engine en Excel-export.
+- Werkgeversvergelijking met twee scenario's, bruto arbeidsvoorwaardenwaarde,
+  afzonderlijke werkgevers- en werknemerspremie, een projectie en een
+  indicatief salarisomslagpunt.
 - Gevalideerde JSON-configuratie en printvriendelijke basisweergave.
 
 ## Lokaal starten
@@ -56,7 +59,7 @@ en de organisatie-instellingen. Controleer die instellingen vóór publicatie.
 ## Structuur
 
 ```text
-src/calculation/  Pure domeinlogica en types
+src/calculation/  Pure domeinlogica en types, inclusief werkgeversvergelijking
 src/export/       JSON-validatie en Excel-export
 src/formatting/   Nederlandse presentatieformatters
 src/tests/        Testconfiguratie
