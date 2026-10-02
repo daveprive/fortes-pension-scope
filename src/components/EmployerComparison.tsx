@@ -72,6 +72,7 @@ function OfferCard({
   onChange: (scenario: EmployerScenario) => void;
   onCopyFromCurrent?: () => void;
 }) {
+  const isNewEmployer = Boolean(onCopyFromCurrent);
   const { input } = scenario;
   const patchInput = (patch: Partial<typeof input>) =>
     onChange({ ...scenario, input: { ...input, ...patch } });
@@ -102,6 +103,12 @@ function OfferCard({
             </Button>
           )}
         </Stack>
+        {isNewEmployer && (
+          <Alert severity="info" sx={{ mt: 2 }}>
+            Vul het vlakke premiepercentage van de nieuwe werkgever in. Het
+            benodigde bruto salaris wordt in het overzicht berekend.
+          </Alert>
+        )}
         <Typography variant="overline" color="primary" sx={{ mt: 2, display: "block" }}>
           Arbeidsvoorwaarden per jaar
         </Typography>
@@ -175,19 +182,23 @@ function OfferCard({
             />
           </Grid>
           <Grid size={6}>
-            <TextField
-              fullWidth
-              select
-              label="Type regeling"
-              value={input.currentScheme.type}
-              onChange={(event) =>
-                patchScheme({ type: event.target.value as SchemeType })
-              }
-            >
-              <MenuItem value="progressive">Progressieve leeftijdsstaffel</MenuItem>
-              <MenuItem value="flat">Vlakke premie</MenuItem>
-              <MenuItem value="manual">Handmatige premie</MenuItem>
-            </TextField>
+            {isNewEmployer ? (
+              <TextField fullWidth label="Type regeling" value="Vlakke premie" disabled />
+            ) : (
+              <TextField
+                fullWidth
+                select
+                label="Type regeling"
+                value={input.currentScheme.type}
+                onChange={(event) =>
+                  patchScheme({ type: event.target.value as SchemeType })
+                }
+              >
+                <MenuItem value="progressive">Progressieve leeftijdsstaffel</MenuItem>
+                <MenuItem value="flat">Vlakke premie</MenuItem>
+                <MenuItem value="manual">Handmatige premie</MenuItem>
+              </TextField>
+            )}
           </Grid>
           <Grid size={6}>
             {input.currentScheme.type === "manual" ? (
@@ -199,19 +210,19 @@ function OfferCard({
               />
             ) : (
               <Field
-                label={
-                  input.currentScheme.type === "flat"
+              label={
+                  isNewEmployer || input.currentScheme.type === "flat"
                     ? "Vlak premiepercentage"
                     : "Werknemersbijdrage over premie"
                 }
                 value={
-                  input.currentScheme.type === "flat"
+                  isNewEmployer || input.currentScheme.type === "flat"
                     ? input.currentScheme.flatPremiumPercentage
                     : input.currentScheme.employeeContribution.value
                 }
                 unit="%"
                 onChange={(value) =>
-                  input.currentScheme.type === "flat"
+                  isNewEmployer || input.currentScheme.type === "flat"
                     ? patchScheme({ flatPremiumPercentage: value })
                     : patchScheme({
                         employeeContribution: {
@@ -271,8 +282,48 @@ export function EmployerComparison({
   return (
     <>
       <Alert severity="info" sx={{ mb: 3 }}>
-        Dit overzicht vergelijkt bruto arbeidsvoorwaarden. Het is een rekenhulp, geen financieel, fiscaal, juridisch of pensioenadvies.
+        Vul bij de nieuwe werkgever een vlak premiepercentage in. De calculator
+        bepaalt vervolgens welk bruto salaris de lagere of hogere
+        werkgeverspensioenpremie compenseert. Dit is een rekenhulp, geen
+        financieel, fiscaal, juridisch of pensioenadvies.
       </Alert>
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="overline" color="primary">
+            Salaris-omslagpunt
+          </Typography>
+          <Typography variant="h5" gutterBottom>
+            Welk salaris moet ik vragen bij een vlakke premie?
+          </Typography>
+          {comparison.breakEvenGrossMonthlySalary === undefined ? (
+            <Alert severity="warning">
+              Geen omslagpunt gevonden binnen € 0 en € 100.000 bruto maandsalaris.
+            </Alert>
+          ) : (
+            <Grid container spacing={2} alignItems="center">
+              <Grid size={{ xs: 12, md: 5 }}>
+                <Box sx={{ p: 2.5, borderRadius: 2, bgcolor: "primary.main", color: "primary.contrastText" }}>
+                  <Typography variant="body2">Te vragen bruto maandsalaris</Typography>
+                  <Typography variant="h4">
+                    {currency(comparison.breakEvenGrossMonthlySalary)}
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid size={{ xs: 12, md: 7 }}>
+                <Typography>
+                  Huidig salaris: <b>{currency(current.input.salary.grossMonthlySalary)} p/m</b>
+                </Typography>
+                <Typography>
+                  Nodige salariscompensatie: <b>{comparison.breakEvenGrossMonthlySalary >= current.input.salary.grossMonthlySalary ? "+" : "−"}{currency(Math.abs(comparison.breakEvenGrossMonthlySalary - current.input.salary.grossMonthlySalary))} p/m</b>
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Gebaseerd op salaris, vakantiegeld, werkgeverspensioen en eventuele overige werkgeversbijdragen. Werknemerspremie wordt afzonderlijk getoond.
+                </Typography>
+              </Grid>
+            </Grid>
+          )}
+        </CardContent>
+      </Card>
       <Box
         sx={{
           display: "grid",
@@ -286,7 +337,20 @@ export function EmployerComparison({
           scenario={proposed}
           onChange={onProposedChange}
           onCopyFromCurrent={() =>
-            onProposedChange({ ...current, id: "new", name: proposed.name })
+            onProposedChange({
+              ...current,
+              id: "new",
+              name: proposed.name,
+              input: {
+                ...current.input,
+                currentScheme: {
+                  ...current.input.currentScheme,
+                  type: "flat",
+                  flatPremiumPercentage:
+                    proposed.input.currentScheme.flatPremiumPercentage,
+                },
+              },
+            })
           }
         />
         <Card sx={{ gridColumn: { lg: "span 2" } }}>

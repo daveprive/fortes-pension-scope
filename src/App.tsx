@@ -137,6 +137,7 @@ export default function App({
       annualEmployerBenefits: 0,
     },
   });
+  const [comparisonInitialized, setComparisonInitialized] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [calculatedInput, setCalculatedInput] =
     useState<CalculationInput>(defaultInput);
@@ -354,7 +355,36 @@ export default function App({
             3. Berekenen
           </Button>
           <Button onClick={() => setActiveStep(3)}>4. Resultaten</Button>
-          <Button onClick={() => setActiveStep(4)}>
+          <Button
+            onClick={() => {
+              if (!comparisonInitialized) {
+                const comparisonInput = structuredClone(input);
+                setEmployerScenarios({
+                  current: {
+                    id: "current",
+                    name: "Huidige werkgever",
+                    input: comparisonInput,
+                    annualEmployerBenefits: 0,
+                  },
+                  proposed: {
+                    id: "new",
+                    name: "Nieuwe werkgever",
+                    input: {
+                      ...structuredClone(input),
+                      currentScheme: {
+                        ...structuredClone(input.currentScheme),
+                        type: "flat",
+                        flatPremiumPercentage: 20,
+                      },
+                    },
+                    annualEmployerBenefits: 0,
+                  },
+                });
+                setComparisonInitialized(true);
+              }
+              setActiveStep(4);
+            }}
+          >
             5. Werkgeversvergelijking
           </Button>
         </Stack>
@@ -1296,7 +1326,7 @@ export default function App({
                   }))
                 }
               >
-                Gebruik calculatorinvoer
+                Vernieuw vanuit calculator
               </Button>
             </Stack>
             <EmployerComparison
