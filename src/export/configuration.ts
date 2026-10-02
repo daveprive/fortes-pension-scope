@@ -1,5 +1,9 @@
 import { z } from "zod";
-import type { CalculationInput, ReturnScenario } from "../calculation/types";
+import type {
+  CalculationInput,
+  EmployerScenario,
+  ReturnScenario,
+} from "../calculation/types";
 
 const numeric = z.number().finite();
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -79,11 +83,31 @@ const configurationSchema = z.object({
       }),
     )
     .min(1),
+  employerScenarios: z
+    .object({
+      current: z.object({
+        id: z.literal("current"),
+        name: z.string().min(1).max(100),
+        input: inputSchema,
+        annualEmployerBenefits: numeric.min(0),
+      }),
+      proposed: z.object({
+        id: z.literal("new"),
+        name: z.string().min(1).max(100),
+        input: inputSchema,
+        annualEmployerBenefits: numeric.min(0),
+      }),
+    })
+    .optional(),
 });
 
 export type ImportedConfiguration = {
   input: CalculationInput;
   returns: ReturnScenario[];
+  employerScenarios?: {
+    current: EmployerScenario;
+    proposed: EmployerScenario;
+  };
 };
 export function parseConfiguration(value: unknown): ImportedConfiguration {
   return configurationSchema.parse(value) as ImportedConfiguration;
@@ -91,6 +115,10 @@ export function parseConfiguration(value: unknown): ImportedConfiguration {
 export function configurationJson(
   input: CalculationInput,
   returns: ReturnScenario[],
+  employerScenarios?: {
+    current: EmployerScenario;
+    proposed: EmployerScenario;
+  },
 ): string {
-  return JSON.stringify({ version: 1, input, returns }, null, 2);
+  return JSON.stringify({ version: 1, input, returns, employerScenarios }, null, 2);
 }

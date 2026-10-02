@@ -129,3 +129,33 @@ export interface ProjectionResult {
   endCapital: number;
   realEndCapital?: number;
 }
+
+/** A self-contained employer offer, used only in the local comparison screen. */
+export interface EmployerScenario {
+  id: "current" | "new";
+  name: string;
+  input: CalculationInput;
+  /** Annual, employer-paid benefits that are not part of salary or pension. */
+  annualEmployerBenefits: number;
+}
+
+export interface EmploymentValue {
+  annualSalary: number;
+  annualEmployerPension: number;
+  annualEmployeePension: number;
+  annualEmployerBenefits: number;
+  annualEmploymentValue: number;
+  indicativeAmountAfterEmployeePension: number;
+}
+
+export interface EmployerComparisonResult {
+  current: EmploymentValue;
+  proposed: EmploymentValue;
+  annualEmploymentValueDifference: number;
+  annualEmployerPensionDifference: number;
+  annualEmployeePensionDifference: number;
+  careerEmployerPensionDifference: number;
+  careerEmployeePensionDifference: number;
+  retirementCapitalDifference: number;
+  breakEvenGrossMonthlySalary: number | undefined;
+}

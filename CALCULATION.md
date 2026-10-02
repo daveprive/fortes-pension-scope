@@ -38,3 +38,18 @@ waarbij het eindkapitaal van de vlakke regeling gelijk is aan de huidige
 regeling wordt geretourneerd. Bestaat er geen oplossing binnen dat bereik, dan
 wordt dit expliciet gemeld. Een nominaal equivalent is de gemiddelde
 premielast; die kan afwijken omdat vroegere inleg langer rendeert.
+
+## Werkgeversvergelijking
+
+De vergelijking gebruikt per werkgever dezelfde maandprojectie als de
+calculator. De jaarlijkse bruto arbeidsvoorwaardenwaarde is het bruto
+jaarsalaris, vakantiegeld, eventuele 13e maand, extra vaste beloning, overige
+werkgeversbijdragen en de jaarlijkse werkgeverspensioenpremie. De
+werknemersbijdrage blijft bewust afzonderlijk zichtbaar.
+
+Het salarisomslagpunt wordt via binary search bepaald: het bruto maandsalaris
+bij de nieuwe werkgever waarbij de jaarlijkse bruto arbeidsvoorwaardenwaarde
+gelijk wordt aan die bij de huidige werkgever. Het zoekbereik is € 0 tot
+€ 100.000 per maand. Pensioenverschillen tot pensioendatum gebruiken hetzelfde
+gekozen rendement voor beide scenario's. Dit zijn scenario-uitkomsten en geen
+financieel, fiscaal, juridisch of pensioenadvies.
