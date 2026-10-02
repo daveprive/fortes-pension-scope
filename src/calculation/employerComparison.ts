@@ -1,5 +1,9 @@
 import Decimal from "decimal.js";
-import { projectScenario } from "./calculator";
+import {
+  calculatePensionableSalary,
+  effectiveMonthlyRate,
+  projectScenario,
+} from "./calculator";
 import type {
   CalculationInput,
   EmployerComparisonResult,
@@ -119,6 +123,45 @@ export function findBreakEvenGrossMonthlySalaryForRetirementCapital(
   return (low + high) / 2;
 }
 
+/** Gross monthly salary at which the pensionable annual salary reaches its cap. */
+export function findGrossMonthlySalaryAtPensionableCap(
+  input: CalculationInput,
+): number | undefined {
+  const cap = input.maximumPensionableAnnualSalary;
+  const pensionableAt = (grossMonthlySalary: number) =>
+    calculatePensionableSalary({ ...input.salary, grossMonthlySalary });
+  if (pensionableAt(100_000) < cap) return undefined;
+  let low = 0;
+  let high = 100_000;
+  for (let index = 0; index < 60; index += 1) {
+    const middle = (low + high) / 2;
+    if (pensionableAt(middle) < cap) low = middle;
+    else high = middle;
+  }
+  return (low + high) / 2;
+}
+
+/**
+ * The end capital effect of a fixed additional premium paid at the end of
+ * every projection month. It follows the same net monthly return as the main
+ * projection and does not alter fixed costs.
+ */
+export function requiredExtraMonthlyPensionContribution(
+  targetEndCapital: number,
+  baseProjectionEndCapital: number,
+  months: number,
+  netAnnualReturnPercentage: number,
+): number {
+  const remainingGap = Math.max(0, targetEndCapital - baseProjectionEndCapital);
+  if (remainingGap === 0 || months === 0) return 0;
+  const rate = effectiveMonthlyRate(netAnnualReturnPercentage);
+  let futureValueFactor = d(0);
+  for (let month = 0; month < months; month += 1) {
+    futureValueFactor = futureValueFactor.plus(d(1).plus(rate).pow(month));
+  }
+  return n(d(remainingGap).div(futureValueFactor));
+}
+
 export function compareEmployerScenarios(
   current: EmployerScenario,
   proposed: EmployerScenario,
@@ -128,6 +171,29 @@ export function compareEmployerScenarios(
   const proposedValue = calculateEmploymentValue(proposed);
   const currentProjection = capitalAtRetirement(current, returnPercentage);
   const proposedProjection = capitalAtRetirement(proposed, returnPercentage);
+  const salaryAtCap = findGrossMonthlySalaryAtPensionableCap(proposed.input);
+  const proposedAtCap =
+    salaryAtCap === undefined
+      ? undefined
+      : capitalAtRetirement(
+          {
+            ...proposed,
+            input: {
+              ...proposed.input,
+              salary: {
+                ...proposed.input.salary,
+                grossMonthlySalary: Math.max(
+                  proposed.input.salary.grossMonthlySalary,
+                  salaryAtCap,
+                ),
+              },
+            },
+          },
+          returnPercentage,
+        );
+  const gapAtCap = proposedAtCap
+    ? Math.max(0, currentProjection.endCapital - proposedAtCap.endCapital)
+    : undefined;
   return {
     current: currentValue,
     proposed: proposedValue,
@@ -155,5 +221,19 @@ export function compareEmployerScenarios(
         proposed,
         returnPercentage,
       ),
+    grossMonthlySalaryAtPensionableCap: salaryAtCap,
+    retirementCapitalGapAtSalaryCap: gapAtCap,
+    requiredExtraMonthlyPensionContribution:
+      proposedAtCap && gapAtCap !== undefined
+        ? requiredExtraMonthlyPensionContribution(
+            currentProjection.endCapital,
+            proposedAtCap.endCapital,
+            proposedAtCap.monthly.length,
+            returnPercentage -
+              (proposed.input.includeCosts
+                ? proposed.input.annualInvestmentCostPercentage
+                : 0),
+          )
+        : undefined,
   };
 }

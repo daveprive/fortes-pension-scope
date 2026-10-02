@@ -161,4 +161,10 @@ export interface EmployerComparisonResult {
   breakEvenGrossMonthlySalary: number | undefined;
   /** Salary that equalizes projected pension capital on the retirement date. */
   breakEvenGrossMonthlySalaryForRetirementCapital: number | undefined;
+  /** Gross monthly salary at which the proposed pensionable salary cap is used. */
+  grossMonthlySalaryAtPensionableCap: number | undefined;
+  /** Remaining projected capital gap when the proposed salary cap is used. */
+  retirementCapitalGapAtSalaryCap: number | undefined;
+  /** Monthly voluntary pension contribution required to close that remaining gap. */
+  requiredExtraMonthlyPensionContribution: number | undefined;
 }

@@ -5,6 +5,7 @@ import {
   compareEmployerScenarios,
   findBreakEvenGrossMonthlySalary,
   findBreakEvenGrossMonthlySalaryForRetirementCapital,
+  requiredExtraMonthlyPensionContribution,
 } from "./employerComparison";
 import type { EmployerScenario } from "./types";
 
@@ -64,5 +65,12 @@ describe("employer comparison", () => {
     const result = compareEmployerScenarios(current, proposed, 4);
     expect(result.annualEmployerPensionDifference).toBeTypeOf("number");
     expect(result.annualEmployeePensionDifference).toBeTypeOf("number");
+  });
+
+  it("calculates an additional monthly contribution for a capital gap", () => {
+    expect(requiredExtraMonthlyPensionContribution(1_200, 0, 12, 0)).toBeCloseTo(
+      100,
+      8,
+    );
   });
 });

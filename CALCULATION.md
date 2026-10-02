@@ -55,3 +55,11 @@ deze berekening van toepassing; daardoor kan er boven de grens geen oplossing
 bestaan. Pensioenverschillen tot pensioendatum gebruiken hetzelfde gekozen
 rendement voor beide scenario's. Dit zijn scenario-uitkomsten en geen
 financieel, fiscaal, juridisch of pensioenadvies.
+
+Als het salarismaximum een kapitaal-omslagpunt verhindert, berekent de
+vergelijking ook een alternatief: het salaris waarbij de maximale
+pensioengrondslag wordt benut, gevolgd door de maandelijkse aanvullende eigen
+pensioeninleg die het resterende eindkapitaalverschil zou dichten. De inleg
+wordt als een vaste maandelijkse storting gemodelleerd en rendeert vanaf de
+volgende maand. Of vrijwillige inleg in een concrete regeling mogelijk en
+fiscaal passend is, valt buiten deze calculator.
