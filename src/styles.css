@@ -1,0 +1,40 @@
+body {
+  min-width: 320px;
+}
+
+.MuiAppBar-root {
+  background: linear-gradient(110deg, #0d4e4b, #19716c) !important;
+}
+
+.MuiCard-root {
+  border: 1px solid rgba(22, 92, 89, 0.12);
+  box-shadow: 0 10px 28px rgba(19, 59, 57, 0.08) !important;
+}
+
+.MuiCardContent-root {
+  padding: 24px !important;
+}
+
+.MuiStepLabel-label {
+  font-weight: 600 !important;
+}
+
+.MuiAlert-root {
+  border-radius: 12px !important;
+}
+
+@media print {
+  .MuiAppBar-root,
+  button,
+  .MuiAlert-root {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+  }
+  .MuiCard-root {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ddd;
+  }
+}

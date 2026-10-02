@@ -1,0 +1,96 @@
+import type {
+  CalculationInput,
+  FlatPremiumScenario,
+  ProgressiveTier,
+  ReturnScenario,
+} from "./types";
+
+export const exampleTiers: ProgressiveTier[] = [
+  [15, 20, 4.1],
+  [20, 25, 4.7],
+  [25, 30, 5.7],
+  [30, 35, 6.9],
+  [35, 40, 8.4],
+  [40, 45, 10.2],
+  [45, 50, 12.5],
+  [50, 55, 15.4],
+  [55, 60, 18.9],
+  [60, 65, 23.6],
+  [65, 68, 27.7],
+].map(([fromAge, toAge, percentage], index) => ({
+  id: `example-${index}`,
+  fromAge,
+  toAge,
+  percentage,
+}));
+
+export const defaultInput: CalculationInput = {
+  birthDate: "1980-01-01",
+  employmentDate: "2017-01-01",
+  pensionInsuranceStartDate: "2017-01-01",
+  calculationDate: "2026-10-01",
+  retirementAge: 68,
+  pensionDateRule: "firstDayOfBirthdayMonth",
+  ageMethod: "firstDayOfMonth",
+  salary: {
+    grossMonthlySalary: 0,
+    paymentsPerYear: 12,
+    holidayAllowancePercentage: 8,
+    holidayAllowancePensionable: false,
+    annualExtraReward: 0,
+    annualExtraRewardPensionable: false,
+    thirteenthMonth: false,
+    thirteenthMonthPensionable: false,
+    otherPensionableReward: 0,
+    partTimePercentage: 100,
+    pensionBaseUsesFullTimeSalary: true,
+  },
+  franchise: { current: 19172, annualGrowthPercentage: 0 },
+  annualSalaryGrowthPercentage: 0,
+  maximumPensionableAnnualSalary: 114866,
+  salaryGrowthMonth: 1,
+  currentScheme: {
+    type: "progressive",
+    progressiveTiers: exampleTiers,
+    flatPremiumPercentage: 0,
+    manualMonthlyPremium: 0,
+    employeeContribution: { method: "none", value: 0 },
+  },
+  totalPremiumContributedToDate: 0,
+  actualMonthlyTotalPremium: 0,
+  actualMonthlyEmployerContribution: 0,
+  existingCapital: 0,
+  annualInvestmentCostPercentage: 0,
+  annualFixedCost: 0,
+  includeCosts: false,
+  inflationPercentage: 0,
+  showRealValue: false,
+};
+export const defaultReturnScenarios: ReturnScenario[] = [
+  { id: "return-1", name: "Scenario 3%", annualPercentage: 3 },
+  { id: "return-2", name: "Scenario 4%", annualPercentage: 4 },
+  { id: "return-3", name: "Scenario 5%", annualPercentage: 5 },
+];
+export const defaultFlatPremiumScenarios: FlatPremiumScenario[] = [
+  {
+    id: "flat-1",
+    name: "Vlak 15%",
+    totalPremiumPercentage: 15,
+    employeeContribution: { method: "none", value: 0 },
+    visible: true,
+  },
+  {
+    id: "flat-2",
+    name: "Vlak 20%",
+    totalPremiumPercentage: 20,
+    employeeContribution: { method: "none", value: 0 },
+    visible: true,
+  },
+  {
+    id: "flat-3",
+    name: "Vlak 25%",
+    totalPremiumPercentage: 25,
+    employeeContribution: { method: "none", value: 0 },
+    visible: true,
+  },
+];
