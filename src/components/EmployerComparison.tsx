@@ -277,6 +277,8 @@ export function EmployerComparison({
   onProposedChange: (scenario: EmployerScenario) => void;
 }) {
   const comparison = compareEmployerScenarios(current, proposed, returnPercentage);
+  const capitalBreakEven =
+    comparison.breakEvenGrossMonthlySalaryForRetirementCapital;
   const differenceText = (value: number) =>
     `${value >= 0 ? "+" : "−"}${currency(Math.abs(value))}`;
   return (
@@ -290,14 +292,16 @@ export function EmployerComparison({
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="overline" color="primary">
-            Salaris-omslagpunt
+            Pensioenkapitaal-omslagpunt
           </Typography>
           <Typography variant="h5" gutterBottom>
-            Welk salaris moet ik vragen bij een vlakke premie?
+            Welk salaris geeft hetzelfde pensioenkapitaal op pensioendatum?
           </Typography>
-          {comparison.breakEvenGrossMonthlySalary === undefined ? (
+          {capitalBreakEven === undefined ? (
             <Alert severity="warning">
-              Geen omslagpunt gevonden binnen € 0 en € 100.000 bruto maandsalaris.
+              Geen salarisomslagpunt gevonden binnen € 0 en € 100.000 bruto
+              maandsalaris. Dit kan bijvoorbeeld gebeuren wanneer het
+              pensioengevend salarismaximum wordt bereikt.
             </Alert>
           ) : (
             <Grid container spacing={2} alignItems="center">
@@ -305,7 +309,7 @@ export function EmployerComparison({
                 <Box sx={{ p: 2.5, borderRadius: 2, bgcolor: "primary.main", color: "primary.contrastText" }}>
                   <Typography variant="body2">Te vragen bruto maandsalaris</Typography>
                   <Typography variant="h4">
-                    {currency(comparison.breakEvenGrossMonthlySalary)}
+                    {currency(capitalBreakEven)}
                   </Typography>
                 </Box>
               </Grid>
@@ -314,10 +318,11 @@ export function EmployerComparison({
                   Huidig salaris: <b>{currency(current.input.salary.grossMonthlySalary)} p/m</b>
                 </Typography>
                 <Typography>
-                  Nodige salariscompensatie: <b>{comparison.breakEvenGrossMonthlySalary >= current.input.salary.grossMonthlySalary ? "+" : "−"}{currency(Math.abs(comparison.breakEvenGrossMonthlySalary - current.input.salary.grossMonthlySalary))} p/m</b>
+                  Nodige salariscompensatie: <b>{capitalBreakEven >= current.input.salary.grossMonthlySalary ? "+" : "−"}{currency(Math.abs(capitalBreakEven - current.input.salary.grossMonthlySalary))} p/m</b>
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Gebaseerd op salaris, vakantiegeld, werkgeverspensioen en eventuele overige werkgeversbijdragen. Werknemerspremie wordt afzonderlijk getoond.
+                  Dit salaris maakt het geprojecteerde pensioenkapitaal op de
+                  pensioendatum gelijk. Het projectierendement is {returnPercentage.toLocaleString("nl-NL")} % per jaar.
                 </Typography>
               </Grid>
             </Grid>
@@ -397,9 +402,9 @@ export function EmployerComparison({
               ))}
             </Grid>
             <Alert severity="info" sx={{ mt: 2 }}>
-              {comparison.breakEvenGrossMonthlySalary === undefined
+              {capitalBreakEven === undefined
                 ? "Geen omslagpunt gevonden binnen € 0 en € 100.000 bruto maandsalaris."
-                : `Indicatief omslagpunt: bij de nieuwe werkgever is circa ${currency(comparison.breakEvenGrossMonthlySalary)} bruto maandsalaris nodig voor dezelfde jaarlijkse bruto arbeidsvoorwaardenwaarde.`}
+                : `Indicatief kapitaal-omslagpunt: bij de nieuwe werkgever is circa ${currency(capitalBreakEven)} bruto maandsalaris nodig voor hetzelfde geprojecteerde pensioenkapitaal op pensioendatum.`}
             </Alert>
           </CardContent>
         </Card>

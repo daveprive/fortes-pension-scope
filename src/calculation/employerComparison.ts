@@ -85,6 +85,40 @@ export function findBreakEvenGrossMonthlySalary(
   return (low + high) / 2;
 }
 
+/**
+ * Finds the proposed gross monthly salary that produces the same projected
+ * pension capital on the retirement date. The salary cap is deliberately part
+ * of the projection; a solution may therefore not exist above the cap.
+ */
+export function findBreakEvenGrossMonthlySalaryForRetirementCapital(
+  current: EmployerScenario,
+  proposed: EmployerScenario,
+  returnPercentage: number,
+): number | undefined {
+  const targetCapital = capitalAtRetirement(current, returnPercentage).endCapital;
+  const capitalAt = (grossMonthlySalary: number) =>
+    capitalAtRetirement(
+      {
+        ...proposed,
+        input: {
+          ...proposed.input,
+          salary: { ...proposed.input.salary, grossMonthlySalary },
+        },
+      },
+      returnPercentage,
+    ).endCapital;
+  if (capitalAt(0) > targetCapital || capitalAt(100_000) < targetCapital)
+    return undefined;
+  let low = 0;
+  let high = 100_000;
+  for (let index = 0; index < 60; index += 1) {
+    const middle = (low + high) / 2;
+    if (capitalAt(middle) < targetCapital) low = middle;
+    else high = middle;
+  }
+  return (low + high) / 2;
+}
+
 export function compareEmployerScenarios(
   current: EmployerScenario,
   proposed: EmployerScenario,
@@ -115,5 +149,11 @@ export function compareEmployerScenarios(
       current,
       proposed,
     ),
+    breakEvenGrossMonthlySalaryForRetirementCapital:
+      findBreakEvenGrossMonthlySalaryForRetirementCapital(
+        current,
+        proposed,
+        returnPercentage,
+      ),
   };
 }

@@ -4,6 +4,7 @@ import {
   annualSalaryValue,
   compareEmployerScenarios,
   findBreakEvenGrossMonthlySalary,
+  findBreakEvenGrossMonthlySalaryForRetirementCapital,
 } from "./employerComparison";
 import type { EmployerScenario } from "./types";
 
@@ -37,6 +38,13 @@ describe("employer comparison", () => {
       current.input.salary.grossMonthlySalary,
       6,
     );
+  });
+
+  it("equalizes pension capital for identical offers", () => {
+    const proposed = { ...current, id: "new" as const, name: "Nieuwe werkgever" };
+    expect(
+      findBreakEvenGrossMonthlySalaryForRetirementCapital(current, proposed, 4),
+    ).toBeCloseTo(current.input.salary.grossMonthlySalary, 6);
   });
 
   it("keeps employer and employee pension differences separate", () => {

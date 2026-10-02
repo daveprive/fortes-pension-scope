@@ -41,7 +41,8 @@ export async function downloadEmployerComparisonExcel(
     ['Werkgeverspensioen tot pensioen', comparison.careerEmployerPensionDifference],
     ['Werknemersbijdrage tot pensioen', comparison.careerEmployeePensionDifference],
     ['Pensioenkapitaal op pensioendatum', comparison.retirementCapitalDifference],
-    ['Omslagpunt bruto maandsalaris', comparison.breakEvenGrossMonthlySalary ?? 'Geen oplossing'],
+    ['Omslagpunt salaris voor gelijke arbeidsvoorwaarden', comparison.breakEvenGrossMonthlySalary ?? 'Geen oplossing'],
+    ['Omslagpunt salaris voor gelijk eindkapitaal', comparison.breakEvenGrossMonthlySalaryForRetirementCapital ?? 'Geen oplossing'],
   ].map(([Onderdeel, Verschil]) => ({ Onderdeel, Verschil: typeof Verschil === 'number' ? Verschil : String(Verschil), 'Referentierendement %': returnPercentage / 100 }));
   const file = await writeXlsxFile([
     sheet('Werkgeversvergelijking', values),

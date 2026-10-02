@@ -157,5 +157,8 @@ export interface EmployerComparisonResult {
   careerEmployerPensionDifference: number;
   careerEmployeePensionDifference: number;
   retirementCapitalDifference: number;
+  /** Salary that equalizes annual gross employment value. */
   breakEvenGrossMonthlySalary: number | undefined;
+  /** Salary that equalizes projected pension capital on the retirement date. */
+  breakEvenGrossMonthlySalaryForRetirementCapital: number | undefined;
 }

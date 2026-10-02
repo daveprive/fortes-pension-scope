@@ -47,9 +47,11 @@ jaarsalaris, vakantiegeld, eventuele 13e maand, extra vaste beloning, overige
 werkgeversbijdragen en de jaarlijkse werkgeverspensioenpremie. De
 werknemersbijdrage blijft bewust afzonderlijk zichtbaar.
 
-Het salarisomslagpunt wordt via binary search bepaald: het bruto maandsalaris
-bij de nieuwe werkgever waarbij de jaarlijkse bruto arbeidsvoorwaardenwaarde
-gelijk wordt aan die bij de huidige werkgever. Het zoekbereik is € 0 tot
-€ 100.000 per maand. Pensioenverschillen tot pensioendatum gebruiken hetzelfde
-gekozen rendement voor beide scenario's. Dit zijn scenario-uitkomsten en geen
+Het kapitaal-omslagpunt wordt via binary search bepaald: het bruto
+maandsalaris bij de nieuwe werkgever waarbij het geprojecteerde pensioenkapitaal
+op pensioendatum gelijk wordt aan dat bij de huidige werkgever. Het zoekbereik
+is € 0 tot € 100.000 per maand. Het pensioengevende salarismaximum blijft in
+deze berekening van toepassing; daardoor kan er boven de grens geen oplossing
+bestaan. Pensioenverschillen tot pensioendatum gebruiken hetzelfde gekozen
+rendement voor beide scenario's. Dit zijn scenario-uitkomsten en geen
 financieel, fiscaal, juridisch of pensioenadvies.
