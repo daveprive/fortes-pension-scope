@@ -37,10 +37,12 @@ function Field({
   value,
   onChange,
   unit,
+  helperText,
 }: {
   label: string;
   value: number;
   onChange: (value: number) => void;
+  helperText?: string;
   unit?: "€" | "%";
 }) {
   return (
@@ -49,6 +51,7 @@ function Field({
       type="text"
       label={label}
       value={formatNumber(value)}
+      helperText={helperText}
       slotProps={{
         htmlInput: { inputMode: "decimal" },
         input: unit
@@ -209,37 +212,31 @@ function OfferCard({
                 unit="€"
                 onChange={(manualMonthlyPremium) => patchScheme({ manualMonthlyPremium })}
               />
+            ) : input.currentScheme.type === "progressive" ? (
+              <TextField
+                fullWidth
+                label="Premiebepaling"
+                value="Progressieve leeftijdsstaffel"
+                disabled
+                helperText="De premie volgt de ingevoerde leeftijdsstaffel."
+              />
             ) : (
               <Field
-              label={
-                  isNewEmployer || input.currentScheme.type === "flat"
-                    ? "Vlak premiepercentage"
-                    : "Werknemersbijdrage over premie"
-                }
-                value={
-                  isNewEmployer || input.currentScheme.type === "flat"
-                    ? input.currentScheme.flatPremiumPercentage
-                    : input.currentScheme.employeeContribution.value
-                }
+                label="Vlak premiepercentage"
+                value={input.currentScheme.flatPremiumPercentage}
                 unit="%"
                 onChange={(value) =>
-                  isNewEmployer || input.currentScheme.type === "flat"
-                    ? patchScheme({ flatPremiumPercentage: value })
-                    : patchScheme({
-                        employeeContribution: {
-                          method: "totalPremiumPercentage",
-                          value,
-                        },
-                      })
+                  patchScheme({ flatPremiumPercentage: value })
                 }
               />
             )}
           </Grid>
           <Grid size={12}>
             <Field
-              label="Werknemersbijdrage over totale premie"
+              label="Werknemersbijdrage van totale pensioenpremie"
               value={input.currentScheme.employeeContribution.value}
               unit="%"
+              helperText="Bij 10% betaalt de werknemer 10% van de pensioenpremie; de werkgever betaalt de overige 90%."
               onChange={(value) =>
                 patchScheme({
                   employeeContribution: {
