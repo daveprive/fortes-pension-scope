@@ -535,6 +535,72 @@ export function EmployerComparison({
                 ? "Geen omslagpunt gevonden binnen € 0 en € 100.000 bruto maandsalaris."
                 : `Indicatief kapitaal-omslagpunt: bij de nieuwe werkgever is circa ${currency(capitalBreakEven)} bruto maandsalaris nodig voor hetzelfde geprojecteerde pensioenkapitaal op pensioendatum.`}
             </Alert>
+            {capitalBreakEven === undefined && alternativeAtCap && (
+              <Box
+                sx={{
+                  mt: 2,
+                  p: 2.5,
+                  borderRadius: 2,
+                  bgcolor: "action.hover",
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  justifyContent="space-between"
+                  alignItems={{ sm: "center" }}
+                  spacing={1}
+                  sx={{ mb: 2 }}
+                >
+                  <Typography variant="subtitle1">
+                    Uitwerking: salaris tot pensioengrens plus eigen inleg
+                  </Typography>
+                  <CalculationInfo title="Uitleg alternatief bij pensioengrens">
+                    <Typography>
+                      Boven het pensioengevende salarismaximum leidt extra salaris
+                      niet meer tot extra pensioenpremie in deze regeling.
+                    </Typography>
+                    <Typography>
+                      We gebruiken daarom eerst het salaris dat de maximale
+                      pensioengrondslag bereikt. Daarna rekenen we het resterende
+                      eindkapitaalverschil terug naar een vaste maandelijkse
+                      extra pensioeninleg.
+                    </Typography>
+                    <Typography>
+                      De aanvullende inleg is{" "}
+                      <b>{currency(comparison.requiredExtraMonthlyPensionContribution!)} per maand</b>.
+                    </Typography>
+                  </CalculationInfo>
+                </Stack>
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 12, md: 4 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      Bruto salaris bij maximale pensioengrondslag
+                    </Typography>
+                    <Typography variant="h6">
+                      {currency(Math.max(current.input.salary.grossMonthlySalary, comparison.grossMonthlySalaryAtPensionableCap!))} p/m
+                    </Typography>
+                  </Grid>
+                  <Grid size={{ xs: 12, md: 4 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      Resterend kapitaalverschil op pensioendatum
+                    </Typography>
+                    <Typography variant="h6">
+                      {currency(comparison.retirementCapitalGapAtSalaryCap!)}
+                    </Typography>
+                  </Grid>
+                  <Grid size={{ xs: 12, md: 4 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      Aanvullende eigen pensioeninleg
+                    </Typography>
+                    <Typography variant="h6">
+                      {currency(comparison.requiredExtraMonthlyPensionContribution!)} p/m
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Box>
+            )}
           </CardContent>
         </Card>
       </Box>
